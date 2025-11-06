@@ -107,7 +107,7 @@ class _ResetPasswordEmailState extends State<ResetPasswordEmail> {
                             if (_formKey.currentState!.validate()) {
                               BlocProvider.of<ResetPasswordBloc>(context).add(
                                 ResetPasswordbyEmailEvent(
-                                  phone_number: "+998${phone_number}",
+                                  phone_number: "998${phone_number}",
                                 ),
                               );
                             }

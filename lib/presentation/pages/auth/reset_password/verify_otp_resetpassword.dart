@@ -106,7 +106,7 @@ class VerifyOtpResetPasswordPageState
                   onPressed: () {
                     BlocProvider.of<ComfirmSmscodeBloc>(context).add(
                       ComfirmCodeEmailEvent(
-                        phone_number: "+998${widget.phone}",
+                        phone_number: "998${widget.phone}",
                         otp_code: code.join().toString(),
                       ),
                     );

@@ -14,11 +14,14 @@ class ComfirmSmscodeBloc
   ) async {
     emit(ConfirmSmsCodeLoadingState());
     try {
+      print(event.phone_number);
+      print(event.otp_code);
       final result = await ApiService.confirmotpforResetPassword(
         event.phone_number,
         event.otp_code,
       );
 
+print(result.result);
       if (result.isSuccess) {
         final String resetToken = result.result["reset_token"];
         await SharedPreferencesHelper().setString("reset_token", resetToken);

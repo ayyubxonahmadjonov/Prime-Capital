@@ -1,3 +1,7 @@
+import 'package:real_project/core/utils/value_notifier.dart';
+import 'package:real_project/presentation/pages/home/faq_screen.dart';
+import 'package:real_project/presentation/view_models/bloc/bloc/bloc/dashboard_help_bloc.dart';
+
 import '../../../core/constants/app_imports.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,9 +15,22 @@ class _HomePageState extends State<HomePage> {
   final currentYear = DateTime.now().year;
   final currentMonth = DateTime.now().month;
   final currentDay = DateTime.now().day;
+  double? totalIncome;
+  double? totalExpense;
+  String telegram_username = '';
+  String phone_number = '';
+
   @override
   void initState() {
     super.initState();
+    final now = DateTime.now();
+    final incomeKey = 'total_income_${now.year}_${now.month}';
+    final expenseKey = 'total_expense_${now.year}_${now.month}';
+
+    incomeNotifier.value =
+        SharedPreferencesHelper().getDouble(incomeKey) ?? 0.0;
+    expenseNotifier.value =
+        SharedPreferencesHelper().getDouble(expenseKey) ?? 0.0;
 
     for (int m = 1; m <= currentMonth; m++) {
       final key = "${currentYear}-${m.toString().padLeft(2, '0')}";
@@ -26,6 +43,9 @@ class _HomePageState extends State<HomePage> {
     }
 
     BlocProvider.of<GetProfileBloc>(context).add(GetProfileDetailsEvent());
+    BlocProvider.of<DashboardHelpBloc>(
+      context,
+    ).add(DashboardHelpForUserEvent());
   }
 
   List<double> invests = [];
@@ -53,6 +73,15 @@ class _HomePageState extends State<HomePage> {
     final maxWidth = MediaQuery.of(context).size.width;
     final maxHeight = MediaQuery.of(context).size.height;
     return Scaffold(
+floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      floatingActionButton: FloatingActionButton.extended(
+  onPressed: () {
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const FaqScreen()));
+  },
+  backgroundColor: AppColors.primaryColor,
+  label: Text("FAQ", style: TextStyle(fontWeight: FontWeight.bold,color: AppColors.white2)),
+  icon: Icon(Icons.help_outline,color: AppColors.white2,),
+),
       backgroundColor: Colors.white,
       body: BlocConsumer<GetProfileBloc, GetProfileState>(
         listener: (context, state) {},
@@ -70,11 +99,9 @@ class _HomePageState extends State<HomePage> {
               },
               child: ListView(
                 shrinkWrap: true,
-
                 physics: AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.zero,
                 children: [
-                  // tepadagi container
                   Container(
                     width: 1.sw,
                     height: 0.37.sh,
@@ -97,7 +124,7 @@ class _HomePageState extends State<HomePage> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              "Salom ${state.user.firstName}",
+                              "Salom ${state.user.name}",
                               style: TextStyle(
                                 color: AppColors.white2,
                                 fontSize: 18.sp,
@@ -193,18 +220,30 @@ class _HomePageState extends State<HomePage> {
                         icon: "invest.svg",
                         label: "Invest",
                       ),
-                      BuildIconButton(
-                        dialogWidth: maxWidth * 0.93,
-                        dialogHeight: maxHeight * 0.5,
-                        widget: CopyCardNumberWidget(
-                          iconPath1: "assets/icons/call.svg",
-                          iconPath2: "assets/icons/telegram.svg",
-                          cardNumber: "+998880090799",
-                          name: '@MOHIRA_ADMINSTRATOR',
-                        ),
 
-                        icon: "contact.svg",
-                        label: "Aloqa",
+                      BlocBuilder<DashboardHelpBloc, DashboardHelpState>(
+                        builder: (context, state) {
+                          String telegram = '';
+                          String phone = '';
+
+                          if (state is DashboardHelpSuccess) {
+                            telegram = state.contact.telegram;
+                            phone = state.contact.call;
+                          }
+
+                          return BuildIconButton(
+                            dialogWidth: maxWidth * 0.93,
+                            dialogHeight: maxHeight * 0.5,
+                            widget: CopyCardNumberWidget(
+                              iconPath1: "assets/icons/call.svg",
+                              iconPath2: "assets/icons/telegram.svg",
+                              cardNumber: phone,
+                              name: telegram,
+                            ),
+                            icon: "contact.svg",
+                            label: "Aloqa",
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -276,26 +315,35 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                   SizedBox(height: 30.h),
-                  Row(
+                  Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      _buildIncomeCard(
-                        color: AppColors.primaryColor,
-
-                        title: "Income",
-                        price: "5000",
-                        iconPath: "assets/images/income.svg",
-                        widget: const IncomeScreen(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildIncomeCard(
+                            color: AppColors.primaryColor,
+                            title: "Income",
+                            price: totalIncome.toString(),
+                            iconPath: "assets/images/income.svg",
+                            widget: const IncomeScreen(),
+                            valueNotifier: incomeNotifier,
+                          ),
+                          _buildIncomeCard(
+                            color: AppColors.red,
+                            title: "Expenses",
+                            price: totalExpense.toString(),
+                            iconPath: "assets/images/expenses.svg",
+                            widget: const ExpenseScreen(),
+                            valueNotifier: expenseNotifier,
+                          ),
+                        ],
                       ),
-                      _buildIncomeCard(
-                        color: AppColors.red,
-                        title: "Expenses",
-                        price: "1200",
-                        iconPath: "assets/images/expenses.svg",
-                        widget: const ExpenseScreen(),
-                      ),
+                 
                     ],
                   ),
+
+                  SizedBox(height: 120.h),
                 ],
               ),
             );
@@ -314,6 +362,7 @@ class _HomePageState extends State<HomePage> {
     required String price,
     required String iconPath,
     required Color color,
+    required ValueNotifier<double> valueNotifier,
 
     required Widget widget,
   }) {
@@ -329,7 +378,7 @@ class _HomePageState extends State<HomePage> {
         );
       },
       child: Container(
-        width: 145.w,
+        width: 165.w,
         height: 70.h,
         padding: EdgeInsets.all(10),
 
@@ -362,13 +411,18 @@ class _HomePageState extends State<HomePage> {
                     fontWeight: FontWeight.w500,
                   ),
                 ),
-                Text(
-                  "\$$price",
-                  style: TextStyle(
-                    fontSize: 14.sp,
-                    fontWeight: FontWeight.w500,
-                    color: AppColors.white1,
-                  ),
+                ValueListenableBuilder<double>(
+                  valueListenable: valueNotifier,
+                  builder: (context, value, child) {
+                    return Text(
+                      "\$${value.toStringAsFixed(2)}",
+                      style: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                        color: AppColors.white1,
+                      ),
+                    );
+                  },
                 ),
               ],
             ),

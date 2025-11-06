@@ -4,7 +4,7 @@ import '../../../core/constants/app_imports.dart';
 
 class ApiService {
   ApiService._();
-  static const String _baseUrl = "http://45.144.220.46/";
+  static const String _baseUrl = "http://46.19.66.131/";
   static Map<String, String> _header() {
     final token = SharedPreferencesHelper().getString("access").toString();
     if (token.isEmpty || token == "null") {
@@ -128,18 +128,21 @@ class ApiService {
   static Future<bool> refreshAccessToken() async {
     String? refreshToken = await SharedPreferencesHelper().getString("refresh");
 
-    Uri url = Uri.parse('http://185.42.14.208/api/api/token/refresh/');
+    Uri url = Uri.parse('http://46.19.66.131/api/api/token/refresh/');
     try {
       var response = await http
           .post(url, body: {"refresh": refreshToken})
           .timeout(const Duration(seconds: 30));
+          print(response.body);
       if (response.statusCode == 200) {
+
         final decoded = jsonDecode(response.body);
         final newAccess = decoded["access"];
         final newRefresh = decoded["refresh"] ?? refreshToken;
 
         await SharedPreferencesHelper().setString("access", newAccess);
         await SharedPreferencesHelper().setString("refresh", newRefresh);
+        print("Tokenlar yangilandi");
 
         return true;
       } else {
@@ -148,7 +151,7 @@ class ApiService {
         await SharedPreferencesHelper().remove("refresh");
         await SharedPreferencesHelper().remove("user");
 
-        /// SplashScreen ga redirect qilamiz
+       
         navigatorKey.currentState?.pushAndRemoveUntil(
           MaterialPageRoute(builder: (_) => SplashScreen()),
           (route) => false,
@@ -171,7 +174,15 @@ class ApiService {
       return false;
     }
   }
-
+static Future<HttpResult> getOfferta(){
+  return _get("api/offerta/");
+}
+static Future<HttpResult> getAllQuestions(){
+  return _get("api/questions/");
+}
+static Future<HttpResult> dashboardHelp(){
+  return _get("dashboard/help/");
+}
   //=====GET ALL COURSES =====
 
   static Future<HttpResult> _post(
@@ -221,14 +232,14 @@ class ApiService {
       if (response.statusCode == 401) {
         final isRefreshed = await refreshAccessToken();
         if (isRefreshed) {
-          return await _get(path); // Qayta yuborish
+          return await _get(path); 
         }
       }
 
       HttpInspector.onResponse(response);
 
       var decoded = json.decode(utf8.decode(response.bodyBytes));
-
+print(decoded);
       if (response.statusCode == 200) {
         return HttpResult(statusCode: 200, isSuccess: true, result: decoded);
       } else {}

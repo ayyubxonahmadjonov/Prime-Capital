@@ -1,3 +1,6 @@
+import 'package:real_project/presentation/view_models/bloc/bloc/bloc/dashboard_help_bloc.dart';
+import 'package:real_project/presentation/view_models/bloc/bloc/get_offerta_bloc.dart';
+import 'package:real_project/presentation/view_models/bloc/bloc/get_questions_bloc.dart';
 import 'package:real_project/presentation/view_models/bloc/get_categories/get_categories_bloc.dart';
 import 'package:real_project/presentation/view_models/bloc/set_new_password/set_new_password_bloc.dart';
 
@@ -39,6 +42,9 @@ class _MyAppState extends State<MyApp> {
         BlocProvider(create: (context) => VerifyOtpBloc()),
         BlocProvider(create: (context) => SetNewPasswordBloc()),
         BlocProvider(create: (context) => GetCategoriesBloc()),
+        BlocProvider(create: (context) => GetOffertaBloc()),
+        BlocProvider(create: (context) => GetQuestionsBloc()),
+        BlocProvider(create: (context) => DashboardHelpBloc()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,

@@ -51,7 +51,7 @@ class _LoginPageState extends State<LoginPage> {
                       );
                     } else if (state is AuthLoginError) {
                       setState(() {
-                        loginErrorMessage = "Email yoki Parol noto'gri";
+                        loginErrorMessage = " Telefon raqam yoki Parol noto'g'ri";
                       });
                       _formKey.currentState!.validate();
                     }
@@ -148,7 +148,7 @@ class _LoginPageState extends State<LoginPage> {
                                       ).add(
                                         LoginEvent(
                                           phone_number:
-                                              "+998${phoneNumberController.text.trim()}",
+                                              "998${phoneNumberController.text.trim()}",
                                           password:
                                               passwordController.text.trim(),
                                         ),

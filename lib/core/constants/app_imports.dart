@@ -19,7 +19,7 @@ export 'package:flutter_screenutil/flutter_screenutil.dart';
 export 'package:real_project/presentation/view_models/bloc/verif_otp_password/comfirm_smscode_bloc.dart';
 export 'package:real_project/presentation/view_models/bloc/profile/get_profile_bloc.dart';
 export 'package:real_project/presentation/view_models/bloc/reset_password/reset_password_bloc.dart';
-export 'package:real_project/data/datasources/local/shared_preferences)service.dart';
+export 'package:real_project/data/datasources/local/shared_preferences_service.dart';
 export 'package:flutter_svg/svg.dart';
 export 'dart:convert';
 export 'package:flutter/foundation.dart';

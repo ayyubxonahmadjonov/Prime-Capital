@@ -13,12 +13,12 @@ class AuthRegistrBloc extends Bloc<AuthRegistrEvent, AuthRegistrState> {
   ) async {
     emit(AuthRegistrLoading());
     try {
+
       final result = await ApiService.registr(
         event.name,
         event.phone_number,
         event.password,
       );
-
       if (result.statusCode == 200 || result.statusCode == 201) {
         emit(AuthRegistrSucces());
       } else {

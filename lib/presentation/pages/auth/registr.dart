@@ -1,3 +1,5 @@
+import 'package:real_project/presentation/view_models/bloc/bloc/get_offerta_bloc.dart';
+
 import '../../../core/constants/app_imports.dart';
 
 class RegistrationForm extends StatefulWidget {
@@ -128,14 +130,18 @@ class _RegistrationFormState extends State<RegistrationForm> {
                                 context: context,
                                 barrierDismissible: false,
                                 builder:
-                                    (_) => OfferDialog(
+                                    (_) { 
+    BlocProvider.of<GetOffertaBloc>(context).add(GetOffertaForUserEvent());
+                                      
+                                 return     OfferDialog(
+                                      
                                       onAccepted: () {
                                         setState(() {
                                           isOfferAccepted = true;
                                         });
                                         Navigator.pop(context);
                                       },
-                                    ),
+                                    ); }
                               );
                             },
                             child: Text(
@@ -208,7 +214,7 @@ class _RegistrationFormState extends State<RegistrationForm> {
                                         RegistrEvent(
                                           name: nameController.text.trim(),
                                           phone_number:
-                                              "+998${phoneNumberController.text.trim()}",
+                                              "998${phoneNumberController.text.trim()}",
                                           password:
                                               passwordController.text.trim(),
                                         ),

@@ -1,6 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:meta/meta.dart';
-import 'package:real_project/data/datasources/local/shared_preferences)service.dart';
+import 'package:real_project/data/datasources/local/shared_preferences_service.dart';
 import 'package:real_project/data/datasources/network/api_service.dart';
 
 part 'verify_otp_event.dart';
@@ -22,9 +22,7 @@ class VerifyOtpBloc extends Bloc<VerifyOtpEvent, VerifyOtpState> {
         event.otpType,
       );
 
-      print(result.result);
       if (result.isSuccess) {
-        print("result is success");
         final refresh = result.result["tokens"]["refresh"];
 
         final access = result.result["tokens"]["access"];

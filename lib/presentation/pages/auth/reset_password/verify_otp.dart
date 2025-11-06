@@ -104,7 +104,7 @@ class _OtpPageState extends State<OtpPage> {
                   onPressed: () {
                     BlocProvider.of<VerifyOtpBloc>(context).add(
                       VerifyOtpCodeEvent(
-                        phone: "+998${widget.phone}",
+                        phone: "998${widget.phone}",
                         otpCode: code.join().toString(),
                         otpType: widget.otpType,
                       ),

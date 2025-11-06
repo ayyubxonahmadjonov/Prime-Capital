@@ -16,7 +16,6 @@ class GetExpenseBloc extends Bloc<GetExpenseEvent, GetExpenseState> {
     emit(GetExpenseLoading());
     try {
       final result = await ApiService.getExpenseList();
-      print(result.result);
       if (result.isSuccess) {
         final expenseList =
             (result.result as List)

@@ -17,7 +17,6 @@ class GetCategoriesBloc extends Bloc<GetCategoriesEvent, GetCategoriesState> {
     emit(GetCategoriesLoading());
     try {
       final result = await ApiService.getCategories();
-      print(result.result);
       if (result.isSuccess) {
         final categories =
             (result.result as List)

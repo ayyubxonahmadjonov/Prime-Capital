@@ -1,3 +1,5 @@
+// get_profile_bloc.dart
+import 'package:flutter_bloc/flutter_bloc.dart';
 import '../../../../core/constants/app_imports.dart';
 
 part 'get_profile_event.dart';
@@ -5,33 +7,53 @@ part 'get_profile_state.dart';
 
 class GetProfileBloc extends Bloc<GetProfileEvent, GetProfileState> {
   GetProfileBloc() : super(GetProfileInitial()) {
-    on<GetProfileDetailsEvent>(getProfile);
+    on<GetProfileDetailsEvent>(_onGetProfile);
   }
 
-  Future<void> getProfile(
+  Future<void> _onGetProfile(
     GetProfileDetailsEvent event,
     Emitter<GetProfileState> emit,
   ) async {
     emit(GetProfileLoading());
-    String formattedDate =
-        "${DateTime.now().year}-${DateTime.now().month.toString().padLeft(2, '0')}";
+
     try {
       final result = await ApiService.getProfile();
 
       if (result.statusCode == 200 && result.isSuccess) {
-        final user = UserModel.fromJson(result.result);
-        double invest = double.parse(user.phpInvestBalance.toString());
-        double capital = double.parse(user.phpReitBalance.toString());
+        final user = UserModel.fromJson(result.result as Map<String, dynamic>);
 
-        HiveBoxes.monthly_invests.put(formattedDate, invest);
-        HiveBoxes.monthly_capitals.put(formattedDate, capital);
+        String formattedDate;
+        double invest = 0.0;
+        double capital = 0.0;
+
+        if (user.balanceHistory.isNotEmpty) {
+          final lastHistory = user.balanceHistory.last;
+          final ts = lastHistory.ts;
+          formattedDate = "${ts.year}-${ts.month.toString().padLeft(2, '0')}";
+          invest = lastHistory.newInvest;
+          capital = lastHistory.newReit;
+        } 
+      
+        else {
+          final now = DateTime.now();
+          formattedDate = "${now.year}-${now.month.toString().padLeft(2, '0')}";
+          invest = 0.0;
+          capital = 0.0;
+        }
+
+        await HiveBoxes.monthly_invests.put(formattedDate, invest);
+        await HiveBoxes.monthly_capitals.put(formattedDate, capital);
+
+
         emit(GetProfileSuccess(user: user));
       } else if (result.statusCode == 401) {
+        emit(GetProfileError(error: "Sessiya tugadi. Iltimos, qayta kiring."));
       } else {
-        emit(GetProfileError(error: result.result["message"].toString()));
+        final message = result.result["message"]?.toString() ?? "Server xatosi";
+        emit(GetProfileError(error: message));
       }
     } catch (e) {
-      emit(GetProfileError(error: e.toString()));
+      emit(GetProfileError(error: "Xato: $e"));
     }
   }
 }
